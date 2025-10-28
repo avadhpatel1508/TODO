@@ -1,267 +1,374 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Single-file Drag & Drop Calendar To‑Do</title>
-  <style>
-    :root{
-      --bg:#0f1724; --card:#0b1220; --muted:#9aa4b2; --accent:#60a5fa; --accent-2:#7c3aed;
-      --task-h:40px; --gap:10px; --cell-min:80px;
-      color-scheme: dark;
-    }
-    *{box-sizing:border-box;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial}
-    html,body{height:100%;margin:0;background:linear-gradient(180deg,#071021 0%, #071521 100%);color:#e6eef6}
-    .app{max-width:1100px;margin:28px auto;padding:18px;display:grid;grid-template-columns:320px 1fr;gap:18px}
-    .panel{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:16px;border-radius:12px;box-shadow:0 6px 20px rgba(2,6,23,0.6)}
-    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-    h1{font-size:18px;margin:0}
-    .muted{color:var(--muted);font-size:13px}
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>My Calendar To-Do</title>
+<style>
+:root {
+  --bg:#0f1724;
+  --card:#0b1220;
+  --muted:#9aa4b2;
+  --accent:#60a5fa;
+  --task-h:40px;
+  --gap:10px;
+  --cell-min:80px;
+  color-scheme: dark;
+}
+* {
+  box-sizing: border-box;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+}
+html, body {
+  height: 100%;
+  margin: 0;
+  background: linear-gradient(180deg,#071021 0%, #071521 100%);
+  color: #e6eef6;
+  overflow-x: hidden;
+}
+.app {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1rem;
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 1rem;
+}
+.panel {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(2,6,23,0.6);
+  min-height: 300px;
+}
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+h1 {
+  font-size: 1.25rem;
+  margin: 0;
+}
+.muted {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
 
-    /* Sidebar */
-    .sidebar{display:flex;flex-direction:column;height:calc(100vh - 96px);}
-    .add{display:flex;gap:8px;margin-bottom:12px}
-    .add input{flex:1;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
-    .btn{background:var(--accent);border:none;padding:10px 12px;border-radius:8px;color:#05263b;cursor:pointer}
-    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted)}
-    .tasks-list{overflow:auto;padding-right:6px}
-    .task{height:var(--task-h);display:flex;align-items:center;gap:10px;padding:8px;border-radius:8px;margin-bottom:8px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.02);cursor:grab}
-    .task.dragging{opacity:0.5}
-    .task .dot{width:12px;height:12px;border-radius:50%}
-    .task .title{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .task .icons{display:flex;gap:8px}
-    .task button{background:transparent;border:none;color:var(--muted);cursor:pointer}
+/* Sidebar */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+}
+.add {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+.add input {
+  flex: 1;
+  padding: 0.6rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.04);
+  background: transparent;
+  color: inherit;
+}
+.btn {
+  background: var(--accent);
+  border: none;
+  padding: 0.6rem 0.9rem;
+  border-radius: 8px;
+  color: #05263b;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+.btn:hover {
+  background: #3b82f6;
+}
+.btn.ghost {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--muted);
+}
+.tasks-list {
+  overflow-y: auto;
+  padding-right: 6px;
+  flex: 1;
+  max-height: 60vh;
+}
+.task {
+  height: var(--task-h);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.04);
+  cursor: grab;
+}
+.task.dragging {
+  opacity: 0.5;
+}
+.task .dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.task.completed .title {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+.task .title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.task .icons {
+  display: flex;
+  gap: 8px;
+}
+.task button {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 1rem;
+}
 
-    /* Calendar */
-    .calendar{display:flex;flex-direction:column;height:calc(100vh - 96px)}
-    .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-    .month-nav{display:flex;gap:8px;align-items:center}
-    .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;align-items:start}
-    .weekday{padding:8px 10px;text-align:center;font-size:13px;color:var(--muted);}
-    .cell{min-height:var(--cell-min);background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);padding:8px;border-radius:10px;border:1px solid rgba(255,255,255,0.02);display:flex;flex-direction:column}
-    .cell.out{opacity:0.35}
-    .cell .date{font-size:13px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center}
-    .events{flex:1;overflow:auto;padding-right:6px}
-    .drop-target{min-height:14px}
-    .cell.over{outline:2px dashed rgba(96,165,250,0.35);}
+/* Calendar */
+.calendar {
+  display: flex;
+  flex-direction: column;
+}
+.cal-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+.month-nav {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+.weekday {
+  padding: 6px 8px;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.cell {
+  min-height: var(--cell-min);
+  background: rgba(255,255,255,0.02);
+  padding: 8px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.04);
+  display: flex;
+  flex-direction: column;
+  transition: 0.2s;
+}
+.cell:hover {
+  background: rgba(255,255,255,0.04);
+}
+.cell.out {
+  opacity: 0.35;
+}
+.cell .date {
+  font-size: 0.8rem;
+  margin-bottom: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.events {
+  flex: 1;
+  overflow: auto;
+  padding-right: 4px;
+}
+.drop-target {
+  min-height: 14px;
+}
+.cell.over {
+  outline: 2px dashed rgba(96,165,250,0.35);
+}
+footer.small {
+  margin-top: 10px;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
 
-    .mini{font-size:12px;color:var(--muted)}
-    footer.small{margin-top:10px;font-size:12px;color:var(--muted)}
-
-    /* responsive */
-    @media (max-width:900px){.app{grid-template-columns:1fr;max-width:720px}.sidebar{order:2;height:auto}.calendar{order:1}}
-  </style>
+/* Responsive */
+@media (max-width: 900px) {
+  .app {
+    grid-template-columns: 1fr;
+    padding: 0.75rem;
+  }
+  .sidebar {
+    order: 2;
+    max-height: none;
+  }
+  .calendar {
+    order: 1;
+  }
+  .grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+  .task {
+    font-size: 0.85rem;
+  }
+}
+@media (max-width: 600px) {
+  h1 { font-size: 1rem; }
+  .btn { padding: 0.5rem 0.7rem; font-size: 0.8rem; }
+  .calendar .grid { grid-template-columns: repeat(3, 1fr); }
+  .cell { min-height: 70px; }
+  .add { flex-direction: column; }
+  .add input, .btn { width: 100%; }
+  .tasks-list { max-height: 40vh; }
+}
+@media (max-width: 400px) {
+  .calendar .grid { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
 </head>
 <body>
-  <div class="app">
-    <div class="panel sidebar">
-      <header>
-        <h1>Tasks</h1>
-        <div class="muted">Drag to date • Saved locally</div>
-      </header>
-
-      <div class="add">
-        <input id="task-input" placeholder="New task title...">
-        <button id="add-btn" class="btn">Add</button>
-      </div>
-
-      <div style="display:flex;gap:6px;align-items:center;margin-bottom:10px">
-        <button id="view-unscheduled" class="btn ghost">Unscheduled</button>
-        <button id="clear-all" class="btn ghost">Clear All</button>
-      </div>
-
-      <div class="tasks-list" id="tasks-list" tabindex="0" aria-label="tasks list"></div>
-
-      <footer class="small" style="margin-top:auto">
-        Tip: double-click a task to edit; use delete icon to remove.
-      </footer>
+<div class="app">
+  <div class="panel sidebar">
+    <header><h1>Tasks</h1></header>
+    <div class="add">
+      <input type="text" id="newTask" placeholder="New task..." />
+      <button class="btn" id="addTask">Add</button>
     </div>
-
-    <div class="panel calendar">
-      <div class="cal-head">
-        <div>
-          <div style="display:flex;gap:12px;align-items:center">
-            <button id="prev" class="btn ghost">⟨</button>
-            <button id="today" class="btn">Today</button>
-            <button id="next" class="btn ghost">⟩</button>
-            <div style="margin-left:12px" class="mini" id="month-label"></div>
-          </div>
-        </div>
-        <div class="muted">Click a date to see tasks below • Drag tasks onto any date</div>
-      </div>
-
-      <div class="grid" id="weekdays"></div>
-      <div class="grid" id="dates-grid" style="margin-top:8px"></div>
-
-    </div>
+    <div class="tasks-list" id="tasksList"></div>
   </div>
 
-  <script>
-    // Single-file drag & drop calendar to-do
-    // Data model: tasks = [{id, title, date (YYYY-MM-DD|null), color, done}]
-    // Persist to localStorage
+  <div class="panel calendar">
+    <div class="cal-head">
+      <div class="month-nav">
+        <button class="btn ghost" id="prevMonth">◀</button>
+        <h1 id="monthLabel"></h1>
+        <button class="btn ghost" id="nextMonth">▶</button>
+      </div>
+    </div>
+    <div class="grid" id="calendarGrid"></div>
+    <footer class="small">Drag tasks into calendar dates. Click ✅ to mark done.</footer>
+  </div>
+</div>
 
-    const STORAGE_KEY = 'dd-calendar-tasks-v1';
+<script>
+const tasksList = document.getElementById('tasksList');
+const calendarGrid = document.getElementById('calendarGrid');
+const newTaskInput = document.getElementById('newTask');
+const addTaskBtn = document.getElementById('addTask');
+const monthLabel = document.getElementById('monthLabel');
+const prevMonthBtn = document.getElementById('prevMonth');
+const nextMonthBtn = document.getElementById('nextMonth');
 
-    // utilities
-    const el = id => document.getElementById(id);
-    const fmt = d => d.toISOString().slice(0,10);
-    const uid = ()=> (Date.now().toString(36)+Math.random().toString(36).slice(2,8));
-    const COLORS = ['#60a5fa','#7c3aed','#34d399','#f472b6','#f59e0b','#ef4444'];
+let tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+let currentDate = new Date();
 
-    // state
-    let tasks = JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');
-    let viewDate = new Date(); // current focused month
+function save() {
+  localStorage.setItem('tasks', JSON.stringify(tasks));
+}
+function renderTasks() {
+  tasksList.innerHTML = '';
+  tasks.forEach(t => {
+    if (!t.date) tasksList.appendChild(createTaskEl(t));
+  });
+  renderCalendar();
+}
+function createTaskEl(task) {
+  const el = document.createElement('div');
+  el.className = 'task' + (task.completed ? ' completed' : '');
+  el.draggable = true;
+  el.dataset.id = task.id;
+  el.innerHTML = `
+    <div class="dot"></div>
+    <div class="title">${task.title}</div>
+    <div class="icons">
+      <button class="complete">✅</button>
+      <button class="delete">✖</button>
+    </div>
+  `;
+  el.querySelector('.delete').onclick = () => {
+    tasks = tasks.filter(t => t.id !== task.id);
+    save(); renderTasks();
+  };
+  el.querySelector('.complete').onclick = () => {
+    task.completed = !task.completed;
+    save(); renderTasks();
+  };
+  el.addEventListener('dragstart', e => {
+    e.dataTransfer.setData('text/plain', task.id);
+    el.classList.add('dragging');
+  });
+  el.addEventListener('dragend', () => el.classList.remove('dragging'));
+  return el;
+}
 
-    // DOM refs
-    const tasksList = el('tasks-list');
-    const taskInput = el('task-input');
-    const addBtn = el('add-btn');
-    const prev = el('prev');
-    const next = el('next');
-    const todayBtn = el('today');
-    const monthLabel = el('month-label');
-    const weekdaysGrid = el('weekdays');
-    const datesGrid = el('dates-grid');
-    const viewUnscheduled = el('view-unscheduled');
-    const clearAll = el('clear-all');
+addTaskBtn.onclick = () => {
+  const title = newTaskInput.value.trim();
+  if (!title) return;
+  tasks.push({id: Date.now(), title, completed:false, date:null});
+  newTaskInput.value = '';
+  save(); renderTasks();
+};
 
-    // init
-    function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks)); }
-    function randomColor(){ return COLORS[Math.floor(Math.random()*COLORS.length)]; }
-
-    function addTask(title, date=null){
-      if(!title || !title.trim()) return;
-      tasks.push({id:uid(),title:title.trim(),date:date, color: randomColor(), done:false});
-      save(); render();
-    }
-
-    function updateTask(id, patch){
-      const t = tasks.find(x=>x.id===id); if(!t) return; Object.assign(t,patch); save(); render();
-    }
-
-    function removeTask(id){ tasks = tasks.filter(x=>x.id!==id); save(); render(); }
-
-    // rendering: sidebar tasks
-    function renderTasksList(filterDate=null){
-      tasksList.innerHTML='';
-      // unscheduled first
-      const list = tasks.filter(t => (filterDate===undefined) ? true : (t.date === filterDate));
-      // sort by done then title
-      list.sort((a,b)=> (a.done-b.done) || a.title.localeCompare(b.title));
-      if(list.length===0){ tasksList.innerHTML = '<div class="muted">No tasks here</div>'; return; }
-      for(const t of list){
-        const d = document.createElement('div'); d.className='task'; d.draggable=true; d.dataset.id=t.id;
-        d.innerHTML = `<div class="dot" style="background:${t.color}"></div>
-                       <div class="title">${escapeHtml(t.title)}</div>
-                       <div class="icons">
-                         <button title="toggle done" data-act="toggle">${t.done? '✓' : '○'}</button>
-                         <button title="delete" data-act="del">🗑</button>
-                       </div>`;
-        // drag handlers
-        d.addEventListener('dragstart', e=>{ e.dataTransfer.setData('text/plain', t.id); d.classList.add('dragging'); });
-        d.addEventListener('dragend', e=>{ d.classList.remove('dragging'); });
-        // buttons
-        d.querySelector('[data-act="toggle"]').addEventListener('click', ()=> updateTask(t.id, {done:!t.done}));
-        d.querySelector('[data-act="del"]').addEventListener('click', ()=> { if(confirm('Delete task?')) removeTask(t.id); });
-        // double click edit
-        d.addEventListener('dblclick', ()=>{
-          const nv = prompt('Edit task title', t.title); if(nv===null) return; if(nv.trim()===''){ removeTask(t.id); } else updateTask(t.id,{title:nv.trim()});
-        });
-        tasksList.appendChild(d);
-      }
-    }
-
-    function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-    // calendar rendering
-    function renderCalendar(){
-      // weekdays
-      const weekDays = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-      weekdaysGrid.innerHTML = weekDays.map(d=>`<div class="weekday">${d}</div>`).join('');
-      datesGrid.innerHTML = '';
-
-      const year = viewDate.getFullYear();
-      const month = viewDate.getMonth();
-      monthLabel.textContent = viewDate.toLocaleString(undefined,{month:'long', year:'numeric'});
-
-      const first = new Date(year,month,1);
-      const startDay = first.getDay();
-      const daysInMonth = new Date(year,month+1,0).getDate();
-
-      // previous month's tail
-      const prevDays = startDay;
-      const totalCells = Math.ceil((prevDays + daysInMonth)/7)*7;
-      let dayCounter = 1 - prevDays;
-      for(let i=0;i<totalCells;i++, dayCounter++){
-        const cellDate = new Date(year, month, dayCounter);
-        const iso = fmt(cellDate);
-        const inMonth = cellDate.getMonth() === month;
-        const cell = document.createElement('div'); cell.className='cell'; if(!inMonth) cell.classList.add('out');
-        cell.dataset.iso = iso;
-        cell.innerHTML = `<div class="date"><span>${cellDate.getDate()}</span><span class="mini">${inMonth? '' : ''}</span></div><div class="events" data-iso="${iso}"></div>`;
-
-        // allow dropping
-        cell.addEventListener('dragover', e=>{ e.preventDefault(); cell.classList.add('over'); });
-        cell.addEventListener('dragleave', e=>{ cell.classList.remove('over'); });
-        cell.addEventListener('drop', e=>{
-          e.preventDefault(); cell.classList.remove('over');
-          const id = e.dataTransfer.getData('text/plain'); if(!id) return; updateTask(id, {date: iso});
-        });
-
-        // click to view tasks of this date in sidebar (renderTasksList with exact date)
-        cell.addEventListener('click', e=>{
-          // only if clicked outside an inner button
-          renderTasksList(iso);
-        });
-
-        datesGrid.appendChild(cell);
-      }
-
-      // fill events inside each date
-      const eventsContainers = datesGrid.querySelectorAll('.events');
-      eventsContainers.forEach(c=>{
-        const iso = c.dataset.iso;
-        const dayTasks = tasks.filter(t=>t.date===iso);
-        dayTasks.sort((a,b)=> (a.done-b.done) || a.title.localeCompare(b.title));
-        for(const t of dayTasks){
-          const d = document.createElement('div'); d.className='task'; d.draggable=true; d.dataset.id=t.id;
-          d.style.height='28px'; d.style.padding='4px 6px'; d.style.marginBottom='6px'; d.style.fontSize='12px';
-          d.innerHTML = `<div style="width:10px;height:10px;border-radius:50%;background:${t.color};margin-right:8px"></div><div class="title">${escapeHtml(t.title)}</div>`;
-          d.addEventListener('dragstart', e=>{ e.dataTransfer.setData('text/plain', t.id); d.classList.add('dragging'); });
-          d.addEventListener('dragend', e=>{ d.classList.remove('dragging'); });
-          d.addEventListener('dblclick', e=>{ e.stopPropagation(); const nv = prompt('Edit task title', t.title); if(nv===null) return; if(nv.trim()===''){ removeTask(t.id); } else updateTask(t.id,{title:nv.trim()}); });
-          // context menu to unschedule or delete
-          d.addEventListener('contextmenu', e=>{ e.preventDefault(); const choice = confirm('Un-schedule this task (remove date)? OK = unschedule, Cancel = delete'); if(choice) updateTask(t.id,{date:null}); else removeTask(t.id); });
-          c.appendChild(d);
-        }
+function renderCalendar() {
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+  const start = new Date(year, month, 1);
+  const end = new Date(year, month + 1, 0);
+  const days = [];
+  const firstDay = start.getDay();
+  for (let i=0;i<firstDay;i++) days.push(null);
+  for (let d=1; d<=end.getDate(); d++) days.push(d);
+  while (days.length % 7 !== 0) days.push(null);
+  monthLabel.textContent = currentDate.toLocaleString('default',{month:'long',year:'numeric'});
+  calendarGrid.innerHTML = '';
+  ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(w=>{
+    const wEl=document.createElement('div');
+    wEl.className='weekday';
+    wEl.textContent=w;
+    calendarGrid.appendChild(wEl);
+  });
+  days.forEach(day=>{
+    const cell=document.createElement('div');
+    cell.className='cell'+(day? '' : ' out');
+    if(day){
+      cell.dataset.date = new Date(year,month,day).toISOString().split('T')[0];
+      cell.innerHTML=`<div class="date">${day}</div><div class="events"></div>`;
+      const ev=cell.querySelector('.events');
+      tasks.filter(t=>t.date===cell.dataset.date).forEach(t=>ev.appendChild(createTaskEl(t)));
+      cell.addEventListener('dragover',e=>{e.preventDefault(); cell.classList.add('over');});
+      cell.addEventListener('dragleave',()=>cell.classList.remove('over'));
+      cell.addEventListener('drop',e=>{
+        const id=+e.dataTransfer.getData('text/plain');
+        const t=tasks.find(t=>t.id===id);
+        t.date=cell.dataset.date;
+        save(); renderTasks();
       });
     }
+    calendarGrid.appendChild(cell);
+  });
+}
 
-    function render(){ renderCalendar(); renderTasksList(undefined); }
-
-    // events
-    addBtn.addEventListener('click', ()=>{ addTask(taskInput.value); taskInput.value=''; taskInput.focus(); });
-    taskInput.addEventListener('keydown', e=>{ if(e.key==='Enter'){ addBtn.click(); } });
-    prev.addEventListener('click', ()=>{ viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth()-1, 1); renderCalendar(); });
-    next.addEventListener('click', ()=>{ viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth()+1, 1); renderCalendar(); });
-    todayBtn.addEventListener('click', ()=>{ viewDate = new Date(); renderCalendar(); });
-    viewUnscheduled.addEventListener('click', ()=>{ renderTasksList(null); tasksList.focus(); });
-    clearAll.addEventListener('click', ()=>{ if(confirm('Delete all tasks?')){ tasks=[]; save(); render(); } });
-
-    // keyboard: when tasks list focused, pressing 'n' focuses input
-    tasksList.addEventListener('keydown', e=>{ if(e.key==='n') taskInput.focus(); });
-
-    // initial render
-    render();
-
-    // small helper: if clicking outside calendar, show all tasks
-    document.addEventListener('click', e=>{
-      if(!e.target.closest('.cell')) renderTasksList(undefined);
-    });
-
-    // expose for debugging
-    window._dd_tasks = tasks;
-  </script>
+prevMonthBtn.onclick=()=>{currentDate.setMonth(currentDate.getMonth()-1);renderTasks();}
+nextMonthBtn.onclick=()=>{currentDate.setMonth(currentDate.getMonth()+1);renderTasks();}
+renderTasks();
+</script>
 </body>
 </html>
