@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "My Calendar To-Do",
+  "version": "1.0",
+  "description": "Personal drag-and-drop to-do calendar",
+  "action": {
+    "default_popup": "index.html",
+    "default_title": "My Calendar"
+  },
+  "icons": {
+    "128": "icon.png"
+  }
+}
